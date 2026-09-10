@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "source": "alexasomba/skills",
+  "preset": "automaticpallet-viteplus-workflow",
+  "managedPaths": [".agents/skills/automaticpallet-viteplus-workflow", ".agents/workflow-manifest.json"],
+  "thirdParty": {
+    "before-and-after": { "upstream": "vercel-labs/before-and-after", "license": "PolyForm Shield 1.0.0", "managed": false },
+    "greploop": { "upstream": "greptileai/skills", "license": "MIT", "managed": false },
+    "unslop": { "upstream": "cursor/plugins", "license": "MIT", "managed": false }
+  }
+}

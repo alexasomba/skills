@@ -1,0 +1,8 @@
+{
+  "name": "@alexasomba/skills-catalog",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0-rc.1",
+  "bin": { "alexasomba-skills": "bin/alexasomba-skills.mjs" },
+  "scripts": { "check": "node scripts/check-catalog.mjs", "test": "node --test tests/catalog.test.mjs" }
+}

@@ -15,6 +15,14 @@ metadata:
 
 # Evidence-Driven Testing
 
+## Catalog safety override
+
+For the Codex/Vite+ preset, evidence stays in a local, redacted artifact
+directory by default. Do not upload captures, post to issues or PRs, expose a URL,
+or use a global install unless the user explicitly instructs that external write.
+Use the repository's Vite+ verification task first; recording is supplemental, not
+required for non-visual changes. These rules override any later posting instruction.
+
 Record annotated proof of behavior, then attach it to the PR and tracker issue.
 
 The recording is the capture of you testing the app via computer use: start the

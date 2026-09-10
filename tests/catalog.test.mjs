@@ -1,0 +1,10 @@
+import assert from "node:assert/strict";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import test from "node:test";
+const bin = fileURLToPath(new URL("../bin/alexasomba-skills.mjs", import.meta.url));
+const run = (cmd, root) => spawnSync(process.execPath, [bin, cmd, "--root", root, "--tag", "v-test", "--commit", "abc"], { encoding: "utf8" });
+test("installs, verifies, and rejects drift", () => { const root = mkdtempSync(join(tmpdir(), "skills-catalog-")); assert.equal(run("install", root).status, 0); assert.equal(run("check", root).status, 0); const path = join(root, ".agents/skills/automaticpallet-viteplus-workflow/SKILL.md"); writeFileSync(path, `${readFileSync(path)}drift`); assert.notEqual(run("check", root).status, 0); });

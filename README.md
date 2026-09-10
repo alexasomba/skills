@@ -1,5 +1,14 @@
 # Skills
 
+## Codex-first catalog
+
+`automaticpallet-viteplus-workflow` is the managed first-party preset. Install it
+with `node bin/alexasomba-skills.mjs install --root <repo> --tag <tag> --commit <sha>`,
+verify it with `check`, and replace a verified lock with `update`. Installation stages
+files, records hashes, and refuses managed-file drift. It intentionally excludes the
+PolyForm `before-and-after` vendor copy. Existing third-party entries retain their
+upstream locks and are never rehosted by the preset.
+
 A collection of [agent skills](https://code.claude.com/docs/en/skills) for Claude Code. Each skill is a folder containing a `SKILL.md` with frontmatter (name, description) and instructions that Claude loads on demand when the task matches.
 
 ## Available skills

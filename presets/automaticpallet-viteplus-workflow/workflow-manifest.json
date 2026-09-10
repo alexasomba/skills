@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "integrationBranch": "preview",
+  "productionBranch": "main",
+  "worktrees": { "mode": "detached", "base": "origin/preview", "createTask": "vp run agent:worktree:create" },
+  "verification": { "task": "vp run agent:verify", "checkpoint": "vp staged" },
+  "promotion": { "base": "main", "head": "preview", "humanMergeRequired": true },
+  "externalWrites": { "default": "forbidden", "requiresExplicitUserInstruction": true },
+  "cloudflare": { "gitIntegrationRequired": true, "publicAppsRequireExactPreviewShaUrl": true, "dataServicesRequireNonPublicPreview": true }
+}
