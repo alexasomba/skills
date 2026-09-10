@@ -8,8 +8,8 @@ callouts; it also governs work in this repo itself.
 ## Workflow
 
 1. **Isolate — `/new-feature`.** Every new feature starts in a fresh Git
-   worktree branched from `origin/main` so agents can work in parallel
-   without conflicts. Never build on `main`.
+   worktree branched from `origin/preview` so agents can work in parallel
+   without conflicts. Never build on `main` or `preview`.
 2. **Build — `/code-structure`.** Write code to the service-layer
    architecture: actions/boundaries orchestrate the "why/when", a service
    layer owns the reusable "how", with explicit inputs and structured
@@ -46,7 +46,7 @@ wrote or changed, not to prose you didn't touch.
 
 ## Multi-agent rules
 
-- Never commit directly to `main`.
+- Never commit directly to `main` or `preview`.
 - One worktree and one branch per task and per agent — never reuse or modify
   another agent's worktree, branch, or uncommitted work.
 - **Scope check** before starting: skim open PRs' changed files
@@ -66,7 +66,7 @@ wrote or changed, not to prose you didn't touch.
 1. Keep changes limited to the assigned task.
 2. Run the repo's checks *(repo-specific: list the exact commands here)*.
 3. Assemble the evidence captured along the way into before/after pairs.
-4. Commit with a clear message, rebase onto the latest `origin/main`, and
+4. Commit with a clear message, rebase onto the latest `origin/preview`, and
    rerun the checks.
 5. Push (`git push -u origin <branch>`; after rebasing an already-pushed
    branch, `--force-with-lease`).
