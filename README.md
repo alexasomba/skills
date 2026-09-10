@@ -55,7 +55,7 @@ Use it when greploop's trigger gets "Too many files changed for review".
 
 ### [new-feature](new-feature/SKILL.md)
 
-Starts every new task in an isolated Git worktree branched from `origin/main` so multiple agents can work on the same repo in parallel without conflicts. It covers unique task naming, a scope check against open PRs, fresh dependency installs, and cleanup after merge.
+Starts every new task in an isolated Git worktree branched from `origin/preview` so multiple agents can work on the same repo in parallel without conflicts. It covers unique task naming, a scope check against open PRs, fresh dependency installs, and cleanup after merge.
 
 Use it when:
 
