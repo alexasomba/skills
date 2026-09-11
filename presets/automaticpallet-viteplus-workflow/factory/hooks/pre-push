@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -eu
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+  [ "$remote_ref" = "refs/heads/preview" ] || {
+    echo "Only preview may receive local pushes; promote preview to main by PR." >&2
+    exit 1
+  }
+done
+pnpm exec vpr build
+pnpm exec vp check
+pnpm exec vpr test
+pnpm exec vpr repo:deploy:dry-run

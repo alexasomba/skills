@@ -1,110 +1,88 @@
-# Skills
+# Codex-first skills catalog
 
-## Codex-first catalog
+This repository is the tagged source of truth for a Vite+-enforced software
+factory. It classifies all eight repository assets without mixing first-party
+workflow code with vendored skills.
 
-`automaticpallet-viteplus-workflow` is the managed first-party preset. Install it
-with `node bin/alexasomba-skills.mjs install --root <repo> --tag <tag> --commit <sha>`,
-verify it with `check`, and replace a verified lock with `update`. Installation stages
-files, records hashes, and refuses managed-file drift. It intentionally excludes the
-PolyForm `before-and-after` vendor copy. Existing third-party entries retain their
-upstream locks and are never rehosted by the preset.
+## Managed preset
 
-A collection of [agent skills](https://code.claude.com/docs/en/skills) for Claude Code. Each skill is a folder containing a `SKILL.md` with frontmatter (name, description) and instructions that Claude loads on demand when the task matches.
+`automaticpallet-viteplus-workflow` installs four first-party skills:
 
-## Available skills
+- `automaticpallet-viteplus-workflow`
+- `code-structure`
+- `evidence-driven-testing`
+- `new-feature`
 
-### [before-and-after](before-and-after/SKILL.md)
+The preset combines detached `origin/preview` worktrees, Vite+ hooks and task
+contracts, product-owned architecture boundaries, deterministic evidence, exact
+SHA validation, Cloudflare preview gates, and human promotion to `main`.
 
-Captures before/after screenshots of web pages or elements and outputs a PR-ready markdown comparison table. It drives the `@vercel/before-and-after` CLI.
+Install a tagged commit through staging:
 
-Use it when:
-
-- A PR needs visual proof that a UI change does what it claims
-- You want a `| Before | After |` table generated and uploaded in one step
-- Comparing two URLs, two existing images, or a mix of both
-
-> Vendored from [vercel-labs/before-and-after](https://github.com/vercel-labs/before-and-after) (PolyForm Shield 1.0.0, license included in the folder). Install the CLI with `npm i -g @vercel/before-and-after agent-browser`.
-
-### [code-structure](code-structure/SKILL.md)
-
-Service layer architecture guidance. Enforces a two-layer separation where **actions** orchestrate domain rules (the "why/when") and a **service layer** centralizes reusable operational mechanics (the "how").
-
-Use it when:
-
-- Multiple workflows duplicate the same operational logic
-- You're deciding what belongs in actions vs. shared services
-- A bug fix in one flow doesn't propagate to others doing the same thing
-- Adding a feature that shares mechanics with existing ones
-
-Includes a migration checklist for extracting shared logic safely and a table of anti-patterns to avoid (god services, leaky services, over-abstraction).
-
-### [evidence-driven-testing](evidence-driven-testing/SKILL.md)
-
-Records visual proof while testing UI behavior. The agent drives the app live via computer use (or [cua-driver](https://github.com/trycua/cua) when the harness has no computer-use tools) while the bundled recorder captures the session, then posts the video and a results summary to the PR and tracker issue. The recorder (`scripts/evidence.py`, Python 3 + FFmpeg) runs on Linux, macOS, and Windows and has `doctor`, `start`, `annotate`, and `stop` commands. It timestamps each annotation as the agent tests, burns them into `evidence.mp4` on stop, and summarizes them in a generated `report.md` and `manifest.json`. Headless environments swap the recorder for scripted screenshots and Playwright captures; non-UI changes still get evidence (measured numbers, output pairs, transcript excerpts).
-
-Use it whenever a change needs verifiable evidence that it works, instead of prose claims.
-
-> The recorder needs `ffmpeg`/`ffprobe` built with `libx264` and the `ass` filter, plus a screen-capture source: X11 (`DISPLAY`) or wlroots Wayland (`wf-recorder`; GNOME/KDE are not supported) on Linux, Screen Recording permission on macOS, any standard ffmpeg on Windows. `python3 scripts/evidence.py doctor` reports both. The raw capture is MPEG-TS, so a crashed or hard-killed recorder still yields usable evidence. The headless path needs only a running app and a scriptable browser (Playwright via npx). Posting evidence requires the `gh` CLI (or equivalent). `tests/test_evidence.py` smoke-tests the recorder end to end with a synthetic video source (`python3 -m pytest tests/ -q`).
-
-### [greploop](greploop/SKILL.md)
-
-Iteratively fixes a PR (GitHub), MR (GitLab), or shelved changelist (Perforce) until Greptile gives a perfect review: 5/5 confidence with zero unresolved comments. Triggers the review, fixes actionable comments, resolves threads, pushes, and repeats, up to `--max-iterations` cycles (default 10).
-
-Use it to get a PR to a clean Greptile review before merge.
-
-> Vendored from [greptileai/skills](https://github.com/greptileai/skills) (MIT, license included in the folder). Requires Greptile installed on the repo and an authenticated `gh`/`glab`/`p4` CLI.
-
-### [greploop-apps](greploop-apps/SKILL.md)
-
-The same loop as greploop, but it triggers reviews by tagging `@greptile-apps`, which bypasses Greptile's file-count limit on huge PRs that the plain `@greptile` mention refuses to review. When no check run appears, it falls back to polling Greptile's edited summary comment.
-
-Use it when greploop's trigger gets "Too many files changed for review".
-
-> Local variant derived from greptileai's greploop (MIT, license included in the folder); no separate upstream.
-
-### [new-feature](new-feature/SKILL.md)
-
-Starts every new task in an isolated Git worktree branched from `origin/preview` so multiple agents can work on the same repo in parallel without conflicts. It covers unique task naming, a scope check against open PRs, fresh dependency installs, and cleanup after merge.
-
-Use it when:
-
-- Starting any new feature, fix, or task, before writing code
-- Multiple agents (or sessions) work the same repository concurrently
-- You need a consistent branch-per-task convention with safe cleanup
-
-Includes harness deltas for Claude Code and Cursor, which manage worktrees themselves.
-
-### [unslop](unslop/SKILL.md)
-
-Edits prose to remove AI tells and put a human voice back in. It names 31 patterns to catch (puffery, filler, hedging, chatbot phrases, em dashes, colons as connectors, bold and emoji overuse, abstract metaphor nouns, passive voice) and a short checklist for adding opinion and rhythm, applied as a four-step loop: scan, rewrite, add soul, self-audit.
-
-Use it when:
-
-- Writing anything a person will read: commit messages, PR titles and bodies, docs, README edits, code comments, chat replies
-- Cleaning up existing text that reads machine-made
-
-> Vendored from [cursor/plugins (pstack)](https://github.com/cursor/plugins/tree/main/pstack/skills/unslop) (MIT, license included in the folder). The body matches upstream; the frontmatter has two edits so agents apply the skill on their own instead of waiting for a typed `/unslop`. We dropped the `disable-model-invocation: true` line, and the description now names the trigger (text you write or edit for a human reader) in place of upstream's "any writing. Must always apply.", so auto-invocation matches the scope `AGENTS.md` gives it. Restore the flag if you want slash-command-only behavior.
-
-## Workflow
-
-[`AGENTS.md`](AGENTS.md) ties the skills together into a four-beat workflow: isolate (`new-feature`) → build (`code-structure`) → prove (`evidence-driven-testing`) → ship (`before-and-after` + `greploop`), with `unslop` applied to everything written for humans along the way. Drop it into a repo alongside the skills and fill in the repo-specific callouts (checks, invariants, environment).
-
-## Installation
-
-Clone the repo and copy (or symlink) a skill folder into your skills directory:
-
-```bash
-# Available in all projects
-cp -r code-structure ~/.claude/skills/
-
-# Or scoped to a single project
-cp -r code-structure /path/to/project/.claude/skills/
+```sh
+node bin/alexasomba-skills.mjs install \
+  --root /path/to/repository \
+  --tag v1.0.0 \
+  --commit 0123456789abcdef0123456789abcdef01234567
 ```
 
-Claude Code picks up the skill automatically and invokes it when a task matches the skill's description. You can also invoke one explicitly with `/code-structure` or `/evidence-driven-testing`.
+Use `check` to detect drift and `update` with a new tag and commit only after the
+current install verifies. The lock records every managed file. Installation does
+not alter the consuming repository's `.agents/skills-lock.json` or automatically
+overwrite its project-owned scripts and hooks; factory templates live inside the
+preset for explicit adoption.
 
-## Adding a new skill
+## Factory workflow
 
-1. Create a folder named after the skill (kebab-case).
-2. Add a `SKILL.md` with `name` and `description` frontmatter. The description is what Claude uses to decide when the skill applies, so make it trigger-focused ("Use when...").
-3. Keep instructions concise and actionable; link out to reference files in the folder if they get long.
+```text
+isolate → build → prove → squash/push preview
+→ validate the exact preview SHA on Cloudflare
+→ preview-to-main PR → human merge
+```
+
+The supported project interface is:
+
+```text
+vp run agent:doctor
+vp run agent:worktree:create <name>
+vp staged
+vp run agent:verify
+vp run agent:land <name>
+vp run agent:promotion:status
+```
+
+Only `preview` accepts local pushes. External uploads, PR edits, review triggers,
+and thread resolution require an explicit user instruction. Evidence is local and
+redacted by default.
+
+## Upstream-locked vendor skills
+
+The remaining four assets are retained for provenance and comparison, but are
+not copied by the managed preset:
+
+- `before-and-after` — PolyForm Shield 1.0.0; no global-install or public-upload default
+- `greploop` — MIT; read/review-only unless external writes are explicitly requested
+- `greploop-apps` — MIT local variant; same authorization boundary
+- `unslop` — MIT; optional prose cleanup that never rewrites code or exact technical text
+
+Their licenses remain in their source directories and their repository revisions
+are recorded in `catalog.json`.
+
+## Development
+
+Run repository checks through Vite+:
+
+```sh
+vp check
+vpr catalog:test
+vpr evidence:test
+```
+
+The portable factory gate is `vpr factory:verify`. Evidence tests use `uv` for
+an isolated pytest runtime and require a Linux host plus an FFmpeg build with the
+capabilities documented by the skill; CI provisions that environment and runs
+the suite separately.
+
+New first-party skills need concise trigger-focused `SKILL.md` entrypoints and may
+put detailed guidance in `references/`. Adding or replacing a vendor skill also
+requires an immutable revision, its original license, and a catalog test update.

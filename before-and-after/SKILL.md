@@ -5,11 +5,8 @@ allowed-tools:
   - Bash(npx @vercel/before-and-after *)
   - Bash(before-and-after *)
   - Bash(which before-and-after)
-  - Bash(npm install -g @vercel/before-and-after)
-  - Bash(*/upload-and-copy.sh *)
   - Bash(curl -s -o /dev/null -w *)
   - Bash(gh pr view *)
-  - Bash(gh pr edit *)
   - Bash(vercel inspect *)
   - Bash(vercel whoami)
   - Bash(which vercel)
@@ -21,6 +18,14 @@ allowed-tools:
 > **Package:** `@vercel/before-and-after`
 > Never use `before-and-after` (wrong package).
 
+## Catalog safety override
+
+Capture to local files by default. Do not install a global package, upload media,
+edit a PR, or expose a public URL unless the user explicitly requests that exact
+external write. Prefer the consuming repository's pinned project command; use
+`npx` only when the user accepts its ephemeral download. These rules override
+the upstream execution order and examples below.
+
 ## Agent Behavior Rules
 
 **DO NOT:**
@@ -28,18 +33,20 @@ allowed-tools:
 - Use `--full` unless user explicitly asks for full page / full scroll capture
 
 **DO:**
-- Use `--markdown` when user wants PR integration or markdown output
+- Use `--markdown` only when the user explicitly requests its external upload
 - Use `--mobile` / `--tablet` if user mentions phone, mobile, tablet, responsive, etc.
 - Assume current state is **After**
 - If user provides only one URL or says "PR screenshots" without URLs, **ASK**: "What URL should I use for the 'before' state? (production URL, preview deployment, or another local port)"
 
 ## Execution Order (MUST follow)
 
-1. **Pre-flight** — `which before-and-after || npm install -g @vercel/before-and-after`
+1. **Pre-flight** — use the repository's pinned command or an already installed
+   `before-and-after`; never install it globally
 2. **Protection check** — if `.vercel.app` URL: `curl -s -o /dev/null -w "%{http_code}" "<url>"` (401/403 = protected)
 3. **Capture** — `before-and-after "<before-url>" "<after-url>"`
-4. **Upload** — `./scripts/upload-and-copy.sh <before.png> <after.png> --markdown`
-5. **PR integration** — optionally `gh pr edit` to append markdown
+4. **Review locally** — inspect both captures and retain them as redacted local artifacts
+5. **External delivery** — only when explicitly instructed, upload to the named
+   destination and verify the result
 
 **Never skip steps 1-2.**
 
@@ -60,8 +67,8 @@ before-and-after url1 url2 --mobile    # 375x812
 before-and-after url1 url2 --tablet    # 768x1024
 before-and-after url1 url2 --full      # full scroll
 
-# From existing images
-before-and-after before.png after.png --markdown
+# From existing images into a local output directory
+before-and-after before.png after.png --output .artifacts/visual-diff
 
 # Via npx (use full package name!)
 npx @vercel/before-and-after url1 url2
@@ -75,18 +82,8 @@ npx @vercel/before-and-after url1 url2
 | `-f, --full` | Full scrollable page |
 | `-s, --selector` | CSS selector to capture |
 | `-o, --output` | Output directory (default: ~/Downloads) |
-| `--markdown` | Upload images & output markdown table |
-| `--upload-url <url>` | Custom upload endpoint (default: 0x0.st) |
-
-## Image Upload
-
-```bash
-# Default (0x0.st - no signup needed)
-./scripts/upload-and-copy.sh before.png after.png --markdown
-
-# GitHub Gist
-IMAGE_ADAPTER=gist ./scripts/upload-and-copy.sh before.png after.png --markdown
-```
+| `--markdown` | External upload plus markdown; explicit user instruction required |
+| `--upload-url <url>` | External endpoint; explicit user instruction required |
 
 ## Vercel Deployment Protection
 
@@ -96,29 +93,16 @@ If `.vercel.app` URL returns 401/403:
 2. If available: `vercel inspect <url>` to get bypass token
 3. If not: Tell user to provide bypass token, take manual screenshots, or disable protection
 
-## PR Integration
+## PR integration
 
-```bash
-# Check for gh CLI
-which gh
-
-# Get current PR
-gh pr view --json number,body
-
-# Append screenshots to PR body
-gh pr edit <number> --body "<existing-body>
-
-## Before and After
-<generated-markdown>"
-```
-
-If no `gh` CLI: output markdown and tell user to paste manually.
+Return local file paths and a comparison summary. Editing a PR or uploading the
+images is a separate external write and requires explicit user instruction.
 
 ## Error Reference
 
 | Error | Fix |
 |-------|-----|
-| `command not found` | `npm install -g @vercel/before-and-after` |
+| `command not found` | Use the repository's pinned tool; do not install globally |
 | `could not determine executable` | Use `npx @vercel/before-and-after` (full name) |
 | 401/403 on .vercel.app | See Vercel protection section |
 | Element not found | Verify selector exists on page |

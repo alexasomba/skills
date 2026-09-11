@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -eu
+git_dir=$(git rev-parse --git-dir)
+common_dir=$(git rev-parse --git-common-dir)
+if [ "$git_dir" != "$common_dir" ]; then
+  exec pnpm exec vp staged
+fi
+[ -n "${LTP_AUTOMATED_MERGE-}" ] && exit 0
+echo "Direct commits in the primary checkout are forbidden; commit in a detached worktree." >&2
+exit 1

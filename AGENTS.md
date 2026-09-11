@@ -9,6 +9,12 @@ use its project tasks, never raw package-manager or Git commands:
 4. `vp run agent:land <name>` to squash and push `preview`
 5. inspect `vp run agent:promotion:status`; a human merges `preview` to `main`.
 
+The factory loop is isolate → build → prove → ship. Before work, check active
+changes for scope overlap and identify shared ports, databases, credentials, and
+lockfiles. Keep product policy in orchestration and repeated mechanics in explicit,
+structured capabilities. Verification records reproducible local evidence and the
+exact tested SHA; remote status must refer to that SHA.
+
 No agent creates task branches, pushes outside `preview`, merges production, or
 performs external writes (uploads, PR edits, review triggers, thread resolution)
 without an explicit user instruction. Evidence is local and redacted by default.

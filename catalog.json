@@ -1,11 +1,63 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "source": "alexasomba/skills",
   "preset": "automaticpallet-viteplus-workflow",
-  "managedPaths": [".agents/skills/automaticpallet-viteplus-workflow", ".agents/workflow-manifest.json"],
-  "thirdParty": {
-    "before-and-after": { "upstream": "vercel-labs/before-and-after", "license": "PolyForm Shield 1.0.0", "managed": false },
-    "greploop": { "upstream": "greptileai/skills", "license": "MIT", "managed": false },
-    "unslop": { "upstream": "cursor/plugins", "license": "MIT", "managed": false }
-  }
+  "firstParty": [
+    {
+      "name": "automaticpallet-viteplus-workflow",
+      "source": "presets/automaticpallet-viteplus-workflow",
+      "destination": ".agents/skills/automaticpallet-viteplus-workflow"
+    },
+    {
+      "name": "code-structure",
+      "source": "code-structure",
+      "destination": ".agents/skills/code-structure"
+    },
+    {
+      "name": "evidence-driven-testing",
+      "source": "evidence-driven-testing",
+      "destination": ".agents/skills/evidence-driven-testing"
+    },
+    {
+      "name": "new-feature",
+      "source": "new-feature",
+      "destination": ".agents/skills/new-feature"
+    }
+  ],
+  "managedFiles": [
+    {
+      "source": "presets/automaticpallet-viteplus-workflow/workflow-manifest.json",
+      "destination": ".agents/workflow-manifest.json"
+    }
+  ],
+  "thirdParty": [
+    {
+      "name": "before-and-after",
+      "upstream": "vercel-labs/before-and-after",
+      "revision": "d30d25a73fd6212e884b7bd3dad26fd563e819af",
+      "license": "PolyForm Shield 1.0.0",
+      "managed": false
+    },
+    {
+      "name": "greploop",
+      "upstream": "greptileai/skills",
+      "revision": "d30d25a73fd6212e884b7bd3dad26fd563e819af",
+      "license": "MIT",
+      "managed": false
+    },
+    {
+      "name": "greploop-apps",
+      "upstream": "greptileai/skills local variant",
+      "revision": "d30d25a73fd6212e884b7bd3dad26fd563e819af",
+      "license": "MIT",
+      "managed": false
+    },
+    {
+      "name": "unslop",
+      "upstream": "cursor/plugins",
+      "revision": "c27c4c337817e085a46ef460a76cf47cc8285248",
+      "license": "MIT",
+      "managed": false
+    }
+  ]
 }

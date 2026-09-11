@@ -3,12 +3,9 @@ name: evidence-driven-testing
 description: >
   Records visual proof while testing UI behavior — the agent tests the app
   hands-on via computer use while a screen recording with structured
-  test/assertion annotations captures the session — then posts the video and a
-  results summary to the PR and tracker issue. Use whenever a change needs
-  verifiable evidence that it works, instead of prose claims — including
-  headless environments (scripted screenshots and probes) and non-UI changes
-  (measured numbers, output pairs).
-compatibility: Screen-recording path requires a GUI environment the agent can drive — built-in computer use, or the cua-driver CLI (trycua/cua) when the harness has no computer-use tools — plus an authenticated browser session for the app under test. The bundled recorder (scripts/evidence.py) runs on Linux (X11 via x11grab, Wayland via wf-recorder), macOS (avfoundation, needs Screen Recording permission) and Windows (gdigrab) and needs Python 3 plus ffmpeg + ffprobe built with libx264 and the ass filter. The headless path requires only a running app and a scriptable browser (e.g. Playwright via npx). Posting evidence requires gh (GitHub CLI) or equivalent.
+  test/assertion annotations captures the session. Use whenever a change needs
+  local, reproducible proof instead of prose claims, including headless and
+  non-UI changes. External sharing is optional and requires explicit approval.
 metadata:
   version: "1.2"
 ---
@@ -23,7 +20,14 @@ or use a global install unless the user explicitly instructs that external write
 Use the repository's Vite+ verification task first; recording is supplemental, not
 required for non-visual changes. These rules override any later posting instruction.
 
-Record annotated proof of behavior, then attach it to the PR and tracker issue.
+Record annotated proof of behavior and deliver the local report to the requester.
+
+## Requirements
+
+Screen recording needs a driveable GUI plus Python 3 and FFmpeg/FFprobe with
+libx264 and the `ass` filter. The headless path needs a running app and a
+scriptable browser. External posting additionally needs an authenticated service
+client and explicit user instruction.
 
 The recording is the capture of you testing the app via computer use: start the
 recorder, then drive the app yourself — click, type, navigate — through each
@@ -57,16 +61,17 @@ Python 3 and FFmpeg.
   before recording.
 - **Platforms** (`--source auto` picks the first available):
 
-  | OS | Source | Needs |
-  |---|---|---|
-  | Linux X11 / XWayland | `x11` (x11grab) | `DISPLAY` set |
-  | Linux Wayland | `wayland` (wf-recorder) | `WAYLAND_DISPLAY` set, `wf-recorder` on PATH, and a compositor confirmed to support wlr-screencopy — either a known wlroots one (Sway, Hyprland, river, Wayfire, labwc, dwl, niri) or verified via `wayland-info`. GNOME and KDE Wayland are not capturable this way; `doctor` says so. Use `x11` through XWayland for X11 apps, or a fallback recorder. `--source wayland` still forces it |
-  | macOS | `avfoundation` | Screen Recording permission granted to the terminal / agent host app; `doctor` lists screen indexes for `--screen-index` |
-  | Windows | `gdigrab` | any standard ffmpeg build; `powershell` for process checks |
+  | OS                   | Source                  | Needs                                                                                                                                                                                                                                                                                                                                                                                       |
+  | -------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | Linux X11 / XWayland | `x11` (x11grab)         | `DISPLAY` set                                                                                                                                                                                                                                                                                                                                                                               |
+  | Linux Wayland        | `wayland` (wf-recorder) | `WAYLAND_DISPLAY` set, `wf-recorder` on PATH, and a compositor confirmed to support wlr-screencopy — either a known wlroots one (Sway, Hyprland, river, Wayfire, labwc, dwl, niri) or verified via `wayland-info`. GNOME and KDE Wayland are not capturable this way; `doctor` says so. Use `x11` through XWayland for X11 apps, or a fallback recorder. `--source wayland` still forces it |
+  | macOS                | `avfoundation`          | Screen Recording permission granted to the terminal / agent host app; `doctor` lists screen indexes for `--screen-index`                                                                                                                                                                                                                                                                    |
+  | Windows              | `gdigrab`               | any standard ffmpeg build; `powershell` for process checks                                                                                                                                                                                                                                                                                                                                  |
 
   Capture is the full screen by default; `--geometry WxH` and `--offset X,Y`
   crop a region on x11, wayland, and gdigrab. XWayland only sees X11 windows,
   so prefer the `wayland` source when the app under test is Wayland-native.
+
 - **Crash-safe raw capture**: the raw recording is MPEG-TS (`raw.ts`), so if
   the recorder is killed hard or crashes, what was captured still probes and
   renders. `stop` remuxes or re-encodes it into a standard `evidence.mp4`.
@@ -118,6 +123,7 @@ Python 3 and FFmpeg.
   and the whole screen is captured; pass `--source`, `--geometry`,
   `--offset`, `--display`/`--xauthority` (X11), `--screen-index` (macOS), or
   `--output-name` (Wayland) only when `doctor` or the situation calls for it.
+
 - Add a `setup` annotation describing the starting context:
 
   ```bash
@@ -173,23 +179,20 @@ Python 3 and FFmpeg.
   finalizes whatever video was captured, but only once that recorder process
   is confirmed gone — if it is still alive, stop it first, or the video would
   be rendered while still being written.
+
 - Confirm the recording captured the key moments before sharing: extract a
   frame at each assertion timestamp (`ffmpeg -ss <t> -i evidence.mp4
-  -frames:v 1 frame.png`) and check the state and the label are visible.
+-frames:v 1 frame.png`) and check the state and the label are visible.
 - Fill in the Caveats section of `report.md`; never leave the placeholder.
 
-### 5. Post the evidence
+### 5. Deliver the evidence
 
 - `report.md` is the report: what was tested, environment + exact commit,
   pass/fail per test, caveats. Extend it rather than rewriting from scratch.
-- Post the video + summary as a PR comment (embed in the PR description if
-  it's your PR). `gh pr comment` cannot attach a local video — upload
-  `evidence.mp4` through the PR's comment box in an authenticated browser, or
-  upload it to a host and link it (for example the `before-and-after` upload
-  adapters). Reopen the comment and confirm the video plays before claiming it
-  is posted.
-- Attach the same video to the tracker issue (Linear/Jira) with a one-line result.
-- Send the report + recording to the requester.
+- Send the local report and recording path to the requester.
+- Only when the user explicitly asks, post the video and summary to the named PR
+  or tracker. Reopen the destination and confirm the video plays before claiming
+  it is posted.
 
 ## Guardrails
 
@@ -214,14 +217,14 @@ unchanged; only the input mechanism differs.
   `cua-driver` skill is installed, read it and follow its protocol — the
   snapshot-before-action invariant is mandatory.
 - Loop per interaction: `launch_app` → `get_window_state` (accessibility tree
-  + screenshot) → act via `element_token` (`click`, `type_text`, `press_key`)
-  → `verify_state` for the expected postcondition. Each `verify_state` check
-  maps 1:1 onto an `assertion` annotation.
+  - screenshot) → act via `element_token` (`click`, `type_text`, `press_key`)
+    → `verify_state` for the expected postcondition. Each `verify_state` check
+    maps 1:1 onto an `assertion` annotation.
 - Wherever `doctor` reports `capture_ready: yes`, keep using the bundled
   recorder above for the video and the annotations; cua-driver only supplies
   the input.
 - Otherwise, `cua-driver recording start <output-dir>` / `cua-driver recording
-  stop` is the recorder (the output directory is required, and the daemon
+stop` is the recorder (the output directory is required, and the daemon
   must be running: `cua-driver serve`). Video capture is on by default and is
   finalized to `<output-dir>/recording.mp4` on stop — but on Windows/Linux it
   shells out to ffmpeg, so a missing ffmpeg or display yields only the
@@ -271,6 +274,7 @@ swap the recorder for scripted capture:
   ```
 
   Trim or compress with ffmpeg if the file is large.
+
 - **The annotation protocol becomes files**: number captures in test order
   with the assertion in the name — `01-precondition-signed-in.png`,
   `02-it-saves-on-blur-passed.png` — and keep an `assertions.md` in the
@@ -290,12 +294,12 @@ swap the recorder for scripted capture:
 
 ## Capture hygiene
 
-- Confirm the server you're probing is running *your* code (right port,
+- Confirm the server you're probing is running _your_ code (right port,
   right process), especially when multiple agents share a machine:
   `lsof -i :<port>` — or where `lsof` isn't installed,
   `ss -ltnp "sport = :<port>"` to find the listener's PID, then
   `ps -p <pid> -o args=` to confirm it's yours.
 - Evidence complements the repo's checks (typecheck/build/tests); it never
   replaces them.
-- Hand before/after media pairs to a before/after tool for the PR embed
-  (e.g. `before-and-after before.png after.png --markdown`).
+- When external sharing was explicitly requested, a project-local before/after
+  tool may format media pairs for the destination. Do not install one globally.
